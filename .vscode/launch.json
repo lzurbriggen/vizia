@@ -7,6 +7,100 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug unit tests in library 'vizia_core'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=vizia_core"
+                ],
+                "filter": {
+                    "name": "vizia_core",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'vizia_winit'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=vizia_winit"
+                ],
+                "filter": {
+                    "name": "vizia_winit",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'vizia_baseview'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=vizia_baseview"
+                ],
+                "filter": {
+                    "name": "vizia_baseview",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'run-wasm'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=run-wasm",
+                    "--package=run-wasm"
+                ],
+                "filter": {
+                    "name": "run-wasm",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'run-wasm'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=run-wasm",
+                    "--package=run-wasm"
+                ],
+                "filter": {
+                    "name": "run-wasm",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in library 'vizia'",
             "cargo": {
                 "args": [
@@ -729,6 +823,43 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug example 'menu'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=menu",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "menu",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'menu'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=menu",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "menu",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug example '7guis_counter'",
             "cargo": {
                 "args": [
@@ -868,6 +999,80 @@
                 ],
                 "filter": {
                     "name": "7guis_crud",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '7guis_circle_drawer'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=7guis_circle_drawer",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "7guis_circle_drawer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '7guis_circle_drawer'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=7guis_circle_drawer",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "7guis_circle_drawer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'focus_order'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=focus_order",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "focus_order",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'focus_order'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=focus_order",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "focus_order",
                     "kind": "example"
                 }
             },
@@ -1090,6 +1295,43 @@
                 ],
                 "filter": {
                     "name": "cursor_icon",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'l10n'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=l10n",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "l10n",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'l10n'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=l10n",
+                    "--package=vizia"
+                ],
+                "filter": {
+                    "name": "l10n",
                     "kind": "example"
                 }
             },
@@ -1646,63 +1888,6 @@
                 "filter": {
                     "name": "transform",
                     "kind": "example"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'vizia_baseview'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=vizia_baseview"
-                ],
-                "filter": {
-                    "name": "vizia_baseview",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'vizia_core'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=vizia_core"
-                ],
-                "filter": {
-                    "name": "vizia_core",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'vizia_winit'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=vizia_winit"
-                ],
-                "filter": {
-                    "name": "vizia_winit",
-                    "kind": "lib"
                 }
             },
             "args": [],

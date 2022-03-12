@@ -109,6 +109,10 @@ name = "7guis_crud"
 path = "examples/7GUIs/crud.rs"
 
 [[example]]
+name = "7guis_circle_drawer"
+path = "examples/7GUIs/circle_drawer.rs"
+
+[[example]]
 name = "focus_order"
 path = "examples/accessibility/focus_order.rs"
 

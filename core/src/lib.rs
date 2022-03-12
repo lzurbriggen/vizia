@@ -35,6 +35,8 @@ pub use events::*;
 
 mod storage;
 
+pub mod draw;
+
 mod style;
 pub use style::{
     apply_transform, BorderCornerShape, Display, Overflow, PropSet, PseudoClass, Rule, Style,

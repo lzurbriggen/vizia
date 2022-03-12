@@ -127,6 +127,7 @@ where
                                 .right(Stretch(1.0))
                                 .class("active")
                                 .bind(lens.clone(), move |handle, value| {
+                                    println!("Then this");
                                     let val = *value.get(handle.cx);
                                     let min = thumb_size / size;
                                     let max = 1.0;

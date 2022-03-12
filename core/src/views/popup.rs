@@ -1,6 +1,6 @@
 use morphorm::PositionType;
 
-use crate::{style::PropGet, Code, Context, Data, Handle, Lens, LensExt, Model, View, WindowEvent};
+use crate::{style::PropGet, Code, Context, Data, Handle, Lens, LensExt, Model, View, WindowEvent, Visibility};
 
 #[derive(Debug, Default, Data, Lens, Clone)]
 pub struct PopupData {
@@ -44,7 +44,7 @@ pub struct Popup<L> {
 impl<L> Popup<L>
 where
     L: Lens,
-    L::Target: Into<bool>,
+    L::Target: Into<Visibility> + Data,
 {
     pub fn new<F>(cx: &mut Context, lens: L, builder: F) -> Handle<Self>
     where
@@ -54,7 +54,7 @@ where
             .build2(cx, |cx| {
                 (builder)(cx);
             })
-            .visibility(PopupData::is_open)
+            .visibility(lens)
             .position_type(PositionType::SelfDirected)
             .z_order(100)
     }
@@ -63,7 +63,7 @@ where
 impl<'a, L> Handle<'a, Popup<L>>
 where
     L: Lens,
-    L::Target: Clone + Into<bool>,
+    L::Target: Clone + Into<Visibility>,
 {
     pub fn something<F>(self, f: F) -> Self
     where
@@ -73,11 +73,11 @@ where
         let prev = self.cx.current;
         self.cx.current = self.entity;
         self.cx.add_listener(move |popup: &mut Popup<L>, cx, event| {
-            let flag: bool = popup.lens.get(cx).clone().into();
+            let flag: Visibility = popup.lens.get(cx).clone().into();
             if let Some(window_event) = event.message.downcast() {
                 match window_event {
                     WindowEvent::MouseDown(_) => {
-                        if flag {
+                        if flag == Visibility::Visible {
                             if event.origin != cx.current {
                                 if !cx.current.is_over(cx) {
                                     (focus_event)(cx);
@@ -88,7 +88,7 @@ where
                     }
 
                     WindowEvent::KeyDown(code, _) => {
-                        if flag {
+                        if flag == Visibility::Visible {
                             if *code == Code::Escape {
                                 (focus_event)(cx);
                             }
@@ -108,7 +108,7 @@ where
 impl<L> View for Popup<L>
 where
     L: Lens,
-    L::Target: Into<bool>,
+    L::Target: Into<Visibility>,
 {
     fn element(&self) -> Option<String> {
         Some("popup".to_string())
