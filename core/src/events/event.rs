@@ -1,7 +1,9 @@
 use crate::Entity;
 
 use std::any::{Any, TypeId};
+use std::cmp::Ordering;
 use std::fmt::Debug;
+use std::time::Instant;
 
 /// Determines how the event propagates through the tree
 #[derive(Debug, Clone, PartialEq)]
@@ -152,5 +154,38 @@ impl Event {
         T: Message,
     {
         self.message.downcast::<T>()
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub struct TimedEventHandle(pub usize);
+
+#[derive(Debug)]
+pub struct TimedEvent {
+    pub ident: TimedEventHandle,
+    pub event: Event,
+    pub time: Instant,
+}
+
+impl PartialEq<Self> for TimedEvent {
+    fn eq(&self, other: &Self) -> bool {
+        self.time.eq(&other.time)
+    }
+}
+
+impl Eq for TimedEvent {}
+
+impl PartialOrd for TimedEvent {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match self.time.partial_cmp(&other.time) {
+            None => None,
+            Some(ord) => Some(ord.reverse()),
+        }
+    }
+}
+
+impl Ord for TimedEvent {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.time.cmp(&other.time).reverse()
     }
 }

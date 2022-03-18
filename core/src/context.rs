@@ -1,6 +1,6 @@
 use instant::{Duration, Instant};
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 use std::fmt::{Debug, Formatter};
 use std::sync::Mutex;
 
@@ -13,18 +13,19 @@ use unic_langid::LanguageIdentifier;
 // use fluent_bundle::{FluentBundle, FluentResource};
 // use unic_langid::LanguageIdentifier;
 
+use crate::{TimedEvent, TimedEventHandle, geometry_changed, focus_backward, is_focusable, focus_forward};
 use crate::{
     apply_clipping, apply_hover, apply_inline_inheritance, apply_layout, apply_shared_inheritance,
     apply_styles, apply_text_constraints, apply_transform, apply_visibility, apply_z_ordering,
-    focus_backward, focus_forward, geometry_changed, is_focusable, storage::sparse_set::SparseSet,
     CachedData, Canvas, Color, Display, Entity, Enviroment, Event, FontOrId, IdManager, ImageOrId,
     ImageRetentionPolicy, Message, ModelDataStore, Modifiers, MouseButton, MouseButtonState,
     MouseState, PropSet, Propagation, ResourceManager, StoredImage, Style, Tree, TreeDepthIterator,
     TreeExt, TreeIterator, View, ViewHandler, Visibility, WindowEvent,
+    storage::sparse_set::SparseSet
 };
 
-static DEFAULT_THEME: &str = include_str!("default_theme.css");
 const DOUBLE_CLICK_INTERVAL: Duration = Duration::from_millis(500);
+static DEFAULT_THEME: &str = include_str!("default_theme.css");
 
 pub struct Context {
     pub entity_manager: IdManager<Entity>,
@@ -36,6 +37,8 @@ pub struct Context {
     //pub views: SparseSet<Box<dyn ViewHandler>>,
     pub data: SparseSet<ModelDataStore>,
     pub event_queue: VecDeque<Event>,
+    pub event_schedule: BinaryHeap<TimedEvent>,
+    next_event_id: usize,
     pub listeners: HashMap<Entity, Box<dyn Fn(&mut dyn ViewHandler, &mut Context, &mut Event)>>,
     pub style: Style,
     pub cache: CachedData,
@@ -79,6 +82,8 @@ impl Context {
             cache,
             enviroment: Enviroment::new(),
             event_queue: VecDeque::new(),
+            event_schedule: BinaryHeap::new(),
+            next_event_id: 0,
             listeners: HashMap::default(),
             mouse: MouseState::default(),
             modifiers: Modifiers::empty(),
@@ -202,6 +207,47 @@ impl Context {
         self.event_queue.push_back(
             Event::new(message).target(target).origin(self.current).propagate(Propagation::Direct),
         );
+    }
+
+    pub fn schedule_emit<M: Message>(&mut self, message: M, at: Instant) -> TimedEventHandle {
+        self.schedule_event(
+            Event::new(message)
+                .target(self.current)
+                .origin(self.current)
+                .propagate(Propagation::Up),
+            at,
+        )
+    }
+
+    pub fn schedule_emit_to<M: Message>(
+        &mut self,
+        message: M,
+        target: Entity,
+        at: Instant,
+    ) -> TimedEventHandle {
+        self.schedule_event(
+            Event::new(message).target(target).origin(self.current).propagate(Propagation::Direct),
+            at,
+        )
+    }
+
+    fn schedule_event(&mut self, event: Event, at: Instant) -> TimedEventHandle {
+        let handle = TimedEventHandle(self.next_event_id);
+        self.event_schedule.push(TimedEvent { event, time: at, ident: handle });
+        self.next_event_id += 1;
+        handle
+    }
+
+    pub fn cancel_scheduled(&mut self, handle: TimedEventHandle) -> Result<(), ()> {
+        // holy shit. why is every single useful method on BinaryHeap unstable.
+        let orig_size = self.event_schedule.len();
+        self.event_schedule =
+            self.event_schedule.drain().filter(|item| item.ident != handle).collect();
+        if self.event_schedule.len() != orig_size {
+            Ok(())
+        } else {
+            Err(())
+        }
     }
 
     pub fn add_listener<F, W>(&mut self, listener: F)
