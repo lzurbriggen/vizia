@@ -3,7 +3,7 @@ use crate::Entity;
 use std::any::{Any, TypeId};
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use std::time::Instant;
+use instant::Instant;
 
 /// Determines how the event propagates through the tree
 #[derive(Debug, Clone, PartialEq)]
