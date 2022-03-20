@@ -28,6 +28,7 @@ pub struct TextboxData {
     dragx: f32,
     on_edit: Option<Arc<dyn Fn(&mut Context, String) + Send + Sync>>,
     on_submit: Option<Arc<dyn Fn(&mut Context, String) + Send + Sync>>,
+    on_edit_end: Option<Arc<dyn Fn(&mut Context) + Send + Sync>>,
 }
 
 impl TextboxData {
@@ -43,6 +44,7 @@ impl TextboxData {
             dragx: -1.0,
             on_edit: None,
             on_submit: None,
+            on_edit_end: None,
         }
     }
 
@@ -398,6 +400,7 @@ pub enum TextEvent {
     SetCaretEntity(Entity),
     SetOnEdit(Option<Arc<dyn Fn(&mut Context, String) + Send + Sync>>),
     SetOnSubmit(Option<Arc<dyn Fn(&mut Context, String) + Send + Sync>>),
+    SetOnEditEnd(Option<Arc<dyn Fn(&mut Context) + Send + Sync>>),
 }
 
 impl Model for TextboxData {
@@ -440,6 +443,9 @@ impl Model for TextboxData {
                 TextEvent::StartEdit => {
                     if !cx.current.is_disabled(cx) {
                         self.edit = true;
+                        cx.focused = cx.current;
+                        cx.capture();
+                        cx.current.set_checked(cx, true);
                         self.selection_entity.set_visibility(cx, Visibility::Visible);
                         self.caret_entity.set_visibility(cx, Visibility::Visible);
                     }
@@ -449,6 +455,9 @@ impl Model for TextboxData {
                     self.edit = false;
                     self.selection_entity.set_visibility(cx, Visibility::Invisible);
                     self.caret_entity.set_visibility(cx, Visibility::Invisible);
+                    if let Some(callback) = &self.on_edit_end {
+                        (callback)(cx);
+                    }
                 }
 
                 TextEvent::Submit => {
@@ -517,6 +526,10 @@ impl Model for TextboxData {
                 TextEvent::SetOnSubmit(on_submit) => {
                     self.on_submit = on_submit.clone();
                 }
+                
+                TextEvent::SetOnEditEnd(on_edit_end) => {
+                    self.on_edit_end = on_edit_end.clone();
+                }
             }
         }
     }
@@ -547,6 +560,7 @@ where
                             dragx: -1.0,
                             on_edit: text_data.on_edit.clone(),
                             on_submit: text_data.on_submit.clone(),
+                            on_edit_end: text_data.on_edit_end.clone(),
                         };
                         let real_current = cx.current;
                         cx.current = cx.current.parent(&cx.tree).unwrap();
@@ -612,6 +626,15 @@ impl<'a, L: Lens> Handle<'a, Textbox<L>> {
 
         self
     }
+
+    pub fn on_edit_end<F>(self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Context) + Send + Sync,
+    {
+        self.cx.emit_to(self.entity, TextEvent::SetOnEditEnd(Some(Arc::new(callback))));
+
+        self
+    }
 }
 
 impl<L: Lens> View for Textbox<L>
@@ -634,9 +657,9 @@ where
                         // self.edit = true;
                         cx.emit(TextEvent::StartEdit);
 
-                        cx.focused = cx.current;
-                        cx.capture();
-                        cx.current.set_checked(cx, true);
+                        // cx.focused = cx.current;
+                        // cx.capture();
+                        // cx.current.set_checked(cx, true);
                         //}
 
                         // Hit test

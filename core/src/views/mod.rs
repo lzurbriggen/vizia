@@ -57,3 +57,6 @@ pub use self::image::*;
 
 mod menu;
 pub use menu::*;
+
+mod value_slider;
+pub use value_slider::*;

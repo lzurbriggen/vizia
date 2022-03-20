@@ -45,6 +45,18 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
+    pub fn on_create<F>(self, callback: F) -> Self 
+    where
+        F: Fn(&mut Context),
+    {
+        let prev = self.cx.current;
+        self.cx.current = self.entity();
+        (callback)(self.cx);
+        self.cx.current = prev;
+
+        self
+    }
+
     pub fn bind<L, F>(self, lens: L, closure: F) -> Self
     where
         L: Lens,
@@ -374,4 +386,6 @@ impl<'a, T> Handle<'a, T> {
     set_style!(border_radius_top_right, Units);
     set_style!(border_radius_bottom_left, Units);
     set_style!(border_radius_bottom_right, Units);
+
+
 }
