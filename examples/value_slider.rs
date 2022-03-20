@@ -22,10 +22,9 @@ impl Model for AppData {
 }
 
 fn main() {
-    let mut window_description = WindowDescription::new();
+    let window_description = WindowDescription::new().with_title("Value Slider");
     Application::new(window_description, |cx| {
         AppData { val: 0.5 }.build(cx);
-
 
         ValueSlider::new(cx, AppData::val)
             .on_changing(|cx, val| cx.emit(AppEvent::SetValue(val)))

@@ -45,7 +45,7 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn on_create<F>(self, callback: F) -> Self 
+    pub fn on_build<F>(self, callback: F) -> Self
     where
         F: Fn(&mut Context),
     {
@@ -387,6 +387,4 @@ impl<'a, T> Handle<'a, T> {
     set_style!(border_radius_top_right, Units);
     set_style!(border_radius_bottom_left, Units);
     set_style!(border_radius_bottom_right, Units);
-
-
 }

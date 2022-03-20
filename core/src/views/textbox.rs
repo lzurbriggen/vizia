@@ -526,7 +526,7 @@ impl Model for TextboxData {
                 TextEvent::SetOnSubmit(on_submit) => {
                     self.on_submit = on_submit.clone();
                 }
-                
+
                 TextEvent::SetOnEditEnd(on_edit_end) => {
                     self.on_edit_end = on_edit_end.clone();
                 }
