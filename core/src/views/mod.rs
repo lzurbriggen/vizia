@@ -14,7 +14,7 @@ mod table;
 pub use table::{Table, TableColumn};
 
 mod textbox;
-pub use textbox::Textbox;
+pub use textbox::{TextEvent, Textbox};
 
 mod checkbox;
 pub use checkbox::Checkbox;

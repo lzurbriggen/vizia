@@ -115,7 +115,7 @@ textbox:hover {
     background-color: #f6f6f6;
 }
 
-textbox:checked {
+textbox:focus {
     border-color: #4c00ff;
 }
 

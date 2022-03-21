@@ -443,7 +443,7 @@ impl Model for TextboxData {
                 TextEvent::StartEdit => {
                     if !cx.current.is_disabled(cx) {
                         self.edit = true;
-                        cx.focused = cx.current;
+                        cx.focus();
                         cx.capture();
                         cx.current.set_checked(cx, true);
                         self.selection_entity.set_visibility(cx, Visibility::Visible);
@@ -453,6 +453,8 @@ impl Model for TextboxData {
 
                 TextEvent::EndEdit => {
                     self.edit = false;
+                    cx.release();
+                    cx.current.set_checked(cx, false);
                     self.selection_entity.set_visibility(cx, Visibility::Invisible);
                     self.caret_entity.set_visibility(cx, Visibility::Invisible);
                     if let Some(callback) = &self.on_edit_end {
@@ -586,6 +588,7 @@ where
                 .position_type(PositionType::SelfDirected)
                 .visibility(TextboxData::edit)
                 .hoverable(false)
+                .focusable(false)
                 // .bind(TextboxData::edit, |handle, edit| {
                 //     handle.visibility(edit);
                 // })
@@ -600,6 +603,7 @@ where
                 .width(Pixels(1.0))
                 .visibility(TextboxData::edit)
                 .hoverable(false)
+                .focusable(false)
                 // .bind(TextboxData::edit, |handle, edit| {
                 //     handle.visibility(edit);
                 // })
@@ -658,8 +662,9 @@ where
                         //if !self.edit {
                         // self.edit = true;
                         cx.emit(TextEvent::StartEdit);
+                        cx.emit(TextEvent::SelectAll);
 
-                        // cx.focused = cx.current;
+                        // cx.focus();
                         // cx.capture();
                         // cx.current.set_checked(cx, true);
                         //}
@@ -668,13 +673,15 @@ where
                         //if self.edit {
                         // self.hitx = cx.mouse.cursorx;
                         // self.dragx = cx.mouse.cursorx;
-                        cx.emit(TextEvent::SetHitX(cx.mouse.cursorx));
-                        cx.emit(TextEvent::SetDragX(cx.mouse.cursorx));
+                        if let Some(text_data) = cx.data::<TextboxData>() {
+                            if text_data.edit {
+                                cx.emit(TextEvent::SetHitX(cx.mouse.cursorx));
+                                cx.emit(TextEvent::SetDragX(cx.mouse.cursorx));
+                            }
+                        }
                         //}
                         //self.set_caret(cx, cx.current);
                     } else {
-                        cx.release();
-                        cx.current.set_checked(cx, false);
                         //self.edit = false;
                         cx.emit(TextEvent::EndEdit);
                         //cx.emit(TextEvent::SetEditing(false));
@@ -709,12 +716,22 @@ where
                     cx.emit(WindowEvent::SetCursor(CursorIcon::Default));
                 }
 
+                WindowEvent::FocusIn => {
+                    cx.emit(TextEvent::StartEdit);
+                    cx.emit(TextEvent::SelectAll);
+                }
+
+                WindowEvent::FocusOut => {
+                    cx.emit(TextEvent::EndEdit);
+                }
+
                 WindowEvent::CharInput(c) => {
                     //if self.edit {
                     if *c != '\u{1b}' && // Escape
                             *c != '\u{8}' && // Backspace
                             *c != '\u{7f}' && // Delete
-                            *c != '\u{0d}' &&
+                            *c != '\u{0d}' && // Return
+                            *c != '\u{09}' && // Tab
                             !cx.modifiers.contains(Modifiers::CTRL)
                     {
                         //self.insert_text(cx, String::from(*c));
@@ -731,24 +748,29 @@ where
                         // self.edit = false;
 
                         //cx.emit(TextEvent::EndEdit);
-                        cx.emit(TextEvent::Submit);
 
-                        if let Some(source) = cx.data::<L::Source>() {
-                            let text = self.lens.view(source, |t| {
-                                if let Some(t) = t {
-                                    t.to_string()
-                                } else {
-                                    "".to_owned()
-                                }
-                            });
+                        if let Some(text_data) = cx.data::<TextboxData>() {
+                            if text_data.edit {
+                                cx.emit(TextEvent::Submit);
+                                if let Some(source) = cx.data::<L::Source>() {
+                                    let text = self.lens.view(source, |t| {
+                                        if let Some(t) = t {
+                                            t.to_string()
+                                        } else {
+                                            "".to_owned()
+                                        }
+                                    });
 
-                            cx.emit(TextEvent::SelectAll);
-                            cx.emit(TextEvent::InsertText(text));
-                        };
+                                    cx.emit(TextEvent::SelectAll);
+                                    cx.emit(TextEvent::InsertText(text));
+                                };
 
-                        //self.selection_entity.set_visibility(cx, Visibility::Invisible);
-                        //self.caret_entity.set_visibility(cx, Visibility::Invisible);
-                        cx.current.set_checked(cx, false);
+                                //cx.current.set_checked(cx, false);
+                            } else {
+                                cx.emit(TextEvent::StartEdit);
+                                cx.emit(TextEvent::SelectAll);
+                            }
+                        }
                     }
 
                     Code::ArrowLeft => {

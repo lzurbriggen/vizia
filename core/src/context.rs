@@ -115,6 +115,16 @@ impl Context {
         self.captured = Entity::null();
     }
 
+    pub fn focus(&mut self) {
+        if self.current != self.focused {
+            self.focused.set_focus(self, false);
+            self.event_queue.push_back(Event::new(WindowEvent::FocusOut).target(self.focused));
+            self.event_queue.push_back(Event::new(WindowEvent::FocusIn).target(self.current));
+            self.focused = self.current;
+            self.focused.set_focus(self, true);
+        }
+    }
+
     pub fn remove_children(&mut self, entity: Entity) {
         let children = entity.child_iter(&self.tree).collect::<Vec<_>>();
         for child in children.into_iter() {
@@ -814,6 +824,7 @@ impl Context {
                             self.focused = next_focused;
                         }
                     }
+
                     self.focused.set_focus(self, true);
                 }
 

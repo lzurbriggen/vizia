@@ -46,12 +46,14 @@ fn main() {
                 Label::new(cx, text_item)
                     .width(Pixels(200.0))
                     .height(Pixels(30.0))
-                    .child_left(Pixels(5.0));
+                    .child_left(Pixels(5.0))
+                    .focusable(false);
             })
             .col_between(Pixels(50.0));
         })
         .space(Stretch(1.0))
-        .row_between(Pixels(10.0));
+        .row_between(Pixels(10.0))
+        .focusable(false);
     })
     .run();
 }
