@@ -93,7 +93,7 @@ where
     /// Takes a closure which will be called at the end of every loop of the application.
     ///
     /// The callback provides a place to run 'idle' processing and happens at the end of each loop but before drawing.
-    /// If the callback pushes events into the queue in state then the event loop will re-run. Care must be taken not to
+    /// If the callback pushes events into the queue in context then the event loop will re-run. Care must be taken not to
     /// push events into the queue every time the callback runs unless this is intended.
     ///
     /// # Example
@@ -454,7 +454,6 @@ impl ApplicationRunner {
     pub fn rebuild(&mut self, builder: &Option<Box<dyn Fn(&mut Context) + Send>>) {
         if self.context.enviroment.needs_rebuild {
             self.context.current = Entity::root();
-            self.context.count = 0;
             if let Some(builder) = &builder {
                 (builder)(&mut self.context);
             }
@@ -469,7 +468,6 @@ impl ApplicationRunner {
 
         if let Some(idle_callback) = on_idle {
             self.context.current = Entity::root();
-            self.context.count = 0;
             (idle_callback)(&mut self.context);
         }
     }
