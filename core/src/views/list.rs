@@ -82,12 +82,6 @@ impl<L: 'static + Lens<Target = Vec<T>>, T> View for List<L, T> {
                 _ => {}
             }
         }
-
-        // if let Some(WindowEvent::MouseDown(MouseButton::Left)) = event.message.downcast() {
-        //     if !cx.focused.is_child_of(&cx.tree, cx.current) {
-        //         cx.focused = cx.current;
-        //     }
-        // }
     }
 }
 

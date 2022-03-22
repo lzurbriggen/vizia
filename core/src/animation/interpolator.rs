@@ -3,8 +3,6 @@ pub trait Interpolator {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self;
 }
 
-// Implementations
-
 impl Interpolator for f32 {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
         return start + (end - start) * t;

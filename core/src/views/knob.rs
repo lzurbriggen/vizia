@@ -154,7 +154,7 @@ impl<L: Lens<Target = f32>> View for Knob<L> {
                     self.prev_drag_y = cx.mouse.left.pos_down.1;
 
                     cx.capture();
-                    cx.focused = cx.current;
+                    cx.focus();
 
                     self.continuous_normal = *self.lens.get(cx);
 

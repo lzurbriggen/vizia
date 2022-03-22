@@ -5,7 +5,7 @@ use crate::{
     MouseButton, Textbox, Units::*, View, WindowEvent, ZStack,
 };
 
-use super::textbox::TextEvent;
+use crate::TextEvent;
 
 #[derive(Lens)]
 pub struct VSDataInternal {
