@@ -73,14 +73,14 @@ impl<L: Lens<Target = f32>> Knob<L> {
         })
     }
 
-    pub fn custom<F, T>(
+    pub fn custom<F, V: View>(
         cx: &mut Context,
         default_normal: f32,
         lens: L,
         content: F,
     ) -> Handle<'_, Self>
     where
-        F: 'static + Fn(&mut Context, L) -> Handle<T>,
+        F: 'static + Fn(&mut Context, L) -> Handle<V>,
     {
         Self {
             lens: lens.clone(),

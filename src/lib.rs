@@ -1,3 +1,10 @@
+#![doc(
+    html_favicon_url = "https://raw.githubusercontent.com/vizia/vizia/main/assets/branding/vizia-logo-01.png"
+)]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/vizia/vizia/main/assets/branding/vizia-logo-01.png"
+)]
+
 #[cfg(all(not(feature = "baseview"), feature = "winit"))]
 pub use vizia_winit::application::Application;
 

@@ -524,7 +524,10 @@ where
     }
 }
 
-impl<'a, L: Lens> Handle<'a, Textbox<L>> {
+impl<'a, L: Lens> Handle<'a, Textbox<L>>
+where
+    <L as Lens>::Target: Data + ToString,
+{
     pub fn on_edit<F>(self, callback: F) -> Self
     where
         F: 'static + Fn(&mut Context, String) + Send + Sync,

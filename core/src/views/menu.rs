@@ -214,7 +214,7 @@ impl Menu {
     /// Construct a new menu. The first closure is the label/stack/etc that will be displayed
     /// while the menu is closed, and the second closure will be passed to a vertical MenuStack
     /// to be constructed and then displayed when the menu is opened
-    pub fn new<F1, F2, Lbl>(cx: &mut Context, label: F1, items: F2) -> Handle<'_, Over<Self>>
+    pub fn new<F1, F2, Lbl: View>(cx: &mut Context, label: F1, items: F2) -> Handle<'_, Over<Self>>
     where
         F1: 'static + FnOnce(&mut Context) -> Handle<'_, Lbl>,
         F2: 'static + FnOnce(&mut Context),

@@ -9,7 +9,7 @@ macro_rules! set_style {
     ($name:ident, $t:ty) => {
         pub fn $name(self, value: impl Res<$t>) -> Self {
             value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
-                cx.style().$name.insert(entity, v.into());
+                cx.style().$name.insert(entity, v);
 
                 // TODO - Split this out
                 cx.need_relayout();
@@ -30,13 +30,13 @@ macro_rules! set_style {
 /// A handle to a view which has been already built into the tree.
 ///
 /// This type is part of the prelude.
-pub struct Handle<'a, T> {
+pub struct Handle<'a, V: View> {
     pub entity: Entity,
-    pub p: PhantomData<T>,
+    pub p: PhantomData<V>,
     pub cx: &'a mut Context,
 }
 
-impl<'a, T> Handle<'a, T> {
+impl<'a, V: View> Handle<'a, V> {
     pub fn entity(&self) -> Entity {
         self.entity
     }
@@ -48,14 +48,14 @@ impl<'a, T> Handle<'a, T> {
 
     pub fn modify<F>(self, f: F) -> Self
     where
-        F: FnOnce(&mut T),
-        T: 'static,
+        F: FnOnce(&mut V),
+        V: 'static,
     {
         if let Some(view) = self
             .cx
             .views
             .get_mut(&self.entity)
-            .and_then(|view_handler| view_handler.downcast_mut::<T>())
+            .and_then(|view_handler| view_handler.downcast_mut::<V>())
         {
             (f)(view);
         }
@@ -79,7 +79,7 @@ impl<'a, T> Handle<'a, T> {
     where
         L: Lens,
         <L as Lens>::Target: Data,
-        F: 'static + Fn(Handle<'_, T>, L),
+        F: 'static + Fn(Handle<'_, V>, L),
     {
         let entity = self.entity();
         Binding::new(self.cx, lens, move |cx, data| {
@@ -133,13 +133,13 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn font(self, font_name: &str) -> Self {
-        self.cx.style().font.insert(self.entity, font_name.to_owned());
+    // pub fn font(self, font_name: &str) -> Self {
+    //     self.cx.style().font.insert(self.entity, font_name.to_owned());
 
-        self.cx.need_redraw();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
     pub fn checked(self, state: impl Res<bool>) -> Self {
         state.set_or_bind(self.cx, self.entity, |cx, entity, val| {
@@ -216,42 +216,42 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn z_order(self, value: i32) -> Self {
-        self.cx.style().z_order.insert(self.entity, value);
+    // pub fn z_order(self, value: i32) -> Self {
+    //     self.cx.style().z_order.insert(self.entity, value);
 
-        self.cx.need_redraw();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
-    pub fn overflow(self, value: Overflow) -> Self {
-        self.cx.style().overflow.insert(self.entity, value);
+    // pub fn overflow(self, value: Overflow) -> Self {
+    //     self.cx.style().overflow.insert(self.entity, value);
 
-        self.cx.need_redraw();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
-    pub fn display<U: Clone + Into<Display>>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
-            cx.style().display.insert(entity, val.into());
+    // pub fn display<U: Clone + Into<Display>>(self, value: impl Res<U>) -> Self {
+    //     value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
+    //         cx.style().display.insert(entity, val.into());
 
-            cx.need_relayout();
-            cx.need_redraw();
-        });
+    //         cx.need_relayout();
+    //         cx.need_redraw();
+    //     });
 
-        self
-    }
+    //     self
+    // }
 
-    pub fn visibility<U: Clone + Into<Visibility>>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, move |cx, entity, v| {
-            cx.style().visibility.insert(entity, v.into());
+    // pub fn visibility<U: Clone + Into<Visibility>>(self, value: impl Res<U>) -> Self {
+    //     value.set_or_bind(self.cx, self.entity, move |cx, entity, v| {
+    //         cx.style().visibility.insert(entity, v.into());
 
-            cx.need_redraw();
-        });
+    //         cx.need_redraw();
+    //     });
 
-        self
-    }
+    //     self
+    // }
 
     // Abilities
     pub fn hoverable(self, state: bool) -> Self {
@@ -274,17 +274,17 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn child_space(self, value: Units) -> Self {
-        self.cx.style().child_left.insert(self.entity, value);
-        self.cx.style().child_right.insert(self.entity, value);
-        self.cx.style().child_top.insert(self.entity, value);
-        self.cx.style().child_bottom.insert(self.entity, value);
+    // pub fn child_space(self, value: Units) -> Self {
+    //     self.cx.style().child_left.insert(self.entity, value);
+    //     self.cx.style().child_right.insert(self.entity, value);
+    //     self.cx.style().child_top.insert(self.entity, value);
+    //     self.cx.style().child_bottom.insert(self.entity, value);
 
-        self.cx.need_relayout();
-        self.cx.need_redraw();
+    //     self.cx.need_relayout();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
     pub fn border_radius(self, value: Units) -> Self {
         self.cx.style().border_radius_top_left.insert(self.entity, value);
@@ -297,27 +297,27 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn space(self, value: Units) -> Self {
-        self.cx.style().left.insert(self.entity, value);
-        self.cx.style().right.insert(self.entity, value);
-        self.cx.style().top.insert(self.entity, value);
-        self.cx.style().bottom.insert(self.entity, value);
+    // pub fn space(self, value: Units) -> Self {
+    //     self.cx.style().left.insert(self.entity, value);
+    //     self.cx.style().right.insert(self.entity, value);
+    //     self.cx.style().top.insert(self.entity, value);
+    //     self.cx.style().bottom.insert(self.entity, value);
 
-        self.cx.need_relayout();
-        self.cx.need_redraw();
+    //     self.cx.need_relayout();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
-    pub fn size(self, value: Units) -> Self {
-        self.cx.style().width.insert(self.entity, value);
-        self.cx.style().height.insert(self.entity, value);
+    // pub fn size(self, value: Units) -> Self {
+    //     self.cx.style().width.insert(self.entity, value);
+    //     self.cx.style().height.insert(self.entity, value);
 
-        self.cx.need_relayout();
-        self.cx.need_redraw();
+    //     self.cx.need_relayout();
+    //     self.cx.need_redraw();
 
-        self
-    }
+    //     self
+    // }
 
     pub fn min_size(self, value: Units) -> Self {
         self.cx.style().min_width.insert(self.entity, value);
@@ -339,11 +339,11 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    pub fn color(self, color: Color) -> Self {
-        self.cx.style().font_color.insert(self.entity, color);
+    // pub fn color(self, color: Color) -> Self {
+    //     self.cx.style().font_color.insert(self.entity, color);
 
-        self
-    }
+    //     self
+    // }
 
     pub fn grid_rows(self, rows: Vec<Units>) -> Self {
         self.cx.style().grid_rows.insert(self.entity, rows);
@@ -357,48 +357,48 @@ impl<'a, T> Handle<'a, T> {
         self
     }
 
-    set_style!(background_color, Color);
-    set_style!(background_image, String);
+    // set_style!(background_color, Color);
+    // set_style!(background_image, String);
 
-    set_style!(layout_type, LayoutType);
-    set_style!(position_type, PositionType);
+    // set_style!(layout_type, LayoutType);
+    // set_style!(position_type, PositionType);
 
-    set_style!(left, Units);
-    set_style!(right, Units);
-    set_style!(top, Units);
-    set_style!(bottom, Units);
-    set_style!(width, Units);
-    set_style!(height, Units);
+    // set_style!(left, Units);
+    // set_style!(right, Units);
+    // set_style!(top, Units);
+    // set_style!(bottom, Units);
+    // set_style!(width, Units);
+    // set_style!(height, Units);
 
-    set_style!(min_width, Units);
-    set_style!(max_width, Units);
-    set_style!(min_height, Units);
-    set_style!(max_height, Units);
+    // set_style!(min_width, Units);
+    // set_style!(max_width, Units);
+    // set_style!(min_height, Units);
+    // set_style!(max_height, Units);
 
-    set_style!(min_left, Units);
-    set_style!(max_left, Units);
-    set_style!(min_right, Units);
-    set_style!(max_right, Units);
-    set_style!(min_top, Units);
-    set_style!(max_top, Units);
-    set_style!(min_bottom, Units);
-    set_style!(max_bottom, Units);
+    // set_style!(min_left, Units);
+    // set_style!(max_left, Units);
+    // set_style!(min_right, Units);
+    // set_style!(max_right, Units);
+    // set_style!(min_top, Units);
+    // set_style!(max_top, Units);
+    // set_style!(min_bottom, Units);
+    // set_style!(max_bottom, Units);
 
-    set_style!(child_left, Units);
-    set_style!(child_right, Units);
-    set_style!(child_top, Units);
-    set_style!(child_bottom, Units);
-    set_style!(row_between, Units);
-    set_style!(col_between, Units);
+    // set_style!(child_left, Units);
+    // set_style!(child_right, Units);
+    // set_style!(child_top, Units);
+    // set_style!(child_bottom, Units);
+    // set_style!(row_between, Units);
+    // set_style!(col_between, Units);
     set_style!(row_index, usize);
     set_style!(row_span, usize);
     set_style!(col_index, usize);
     set_style!(col_span, usize);
 
-    set_style!(border_width, Units);
-    set_style!(border_color, Color);
+    // set_style!(border_width, Units);
+    // set_style!(border_color, Color);
 
-    set_style!(font_size, f32);
+    // set_style!(font_size, f32);
     set_style!(text_selection, Selection);
     set_style!(caret_color, Color);
     set_style!(selection_color, Color);
