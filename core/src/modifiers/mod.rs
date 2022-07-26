@@ -1,31 +1,86 @@
-macro_rules! modifier {
-
+macro_rules! define_modifiers {
     (
-        $(#[$meta:meta])*
-        $name:ident, $t:ty
+        $(#[$trait_meta:meta])*
+        trait $trait_name:ident: $trait_bound:ident;
+
+        $(
+            $(
+                basic {
+                    $(
+                        $(#[$modifier_meta:meta])*
+                        $modifier_name:ident: $modifier_type:ty,
+                    )+
+                }
+            )?
+
+            $(
+                custom {
+                    $(
+                        $(#[$custom_function_meta:meta])*
+                        fn $custom_function_name:ident$(<$generic_name:tt: Copy +  $generic_bound:tt<$generic_inner:tt>>)? (
+                            $custom_function_self_ident:ident
+                            $(, $custom_function_arg_name:ident: $custom_function_arg_type:ty)* $(,)?
+                        ) $( -> $custom_function_return_type:ty )?
+                        {
+                            $($custom_function_body:tt)*
+                        }
+                    )+
+                }
+            )?
+        );+
     ) => {
-        $(#[$meta])*
-        #[allow(unused_variables)]
-        fn $name<U: Into<$t>>(self, value: impl Res<U>) -> Self {
-            self
+        $(#[$trait_meta])*
+        pub trait $trait_name: $trait_bound {
+            $(
+                $(
+                    $(
+                        $(#[$modifier_meta])*
+                        fn $modifier_name<U: Into<$modifier_type>>(self, value: impl Res<U>) -> Self;
+                    )+
+                )?
+                $(
+                    $(
+                        $(#[$custom_function_meta])*
+                        fn $custom_function_name$(<$generic_name: Copy + $generic_bound<$generic_inner>>)? (
+                            $custom_function_self_ident,
+                            $($custom_function_arg_name : $custom_function_arg_type),*
+                        ) $( -> $custom_function_return_type)?;
+                    )+
+                )?
+            )+
         }
-    };
-}
 
-macro_rules! modifier_impl {
-    ($name:ident, $t:ty) => {
-        fn $name<U: Into<$t>>(self, value: impl Res<U>) -> Self {
-            value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
-                cx.style().$name.insert(entity, v.into());
+        #[doc(hidden)]
+        impl<V: View> $trait_name for Handle<'_, V> {
+            $(
+                $(
+                    $(
+                        fn $modifier_name<U: Into<$modifier_type>>(self, value: impl Res<U>) -> Self {
+                            value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
+                                cx.style().$modifier_name.insert(entity, v.into());
 
-                // TODO - Split this out
-                cx.need_relayout();
-                cx.need_redraw();
-            });
+                                // TODO - Split this out
+                                cx.need_relayout();
+                                cx.need_redraw();
+                            });
 
-            self
+                            self
+                        }
+                    )+
+                )?
+                $(
+                    $(
+                        fn $custom_function_name$(<$generic_name: Copy + $generic_bound<$generic_inner>>)? (
+                            $custom_function_self_ident,
+                            $($custom_function_arg_name : $custom_function_arg_type),*
+                        ) $( -> $custom_function_return_type)? {
+                            $($custom_function_body)*
+                        }
+                    )+
+                )?
+            )+
         }
-    };
+    }
 }
 
 mod actions;

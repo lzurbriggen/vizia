@@ -50,7 +50,7 @@ pub mod prelude {
         KeyChord, Keymap, KeymapEntry, KeymapEvent, Modifiers, MouseButton, MouseButtonState,
     };
     pub use super::localization::Localized;
-    pub use super::modifiers::{ActionModifiers, LayoutModifiers, StyleModifiers, TextModifiers};
+    pub use super::modifiers::{Actions, LayoutModifiers, StyleModifiers, TextModifiers};
     pub use super::state::{Binding, Data, Lens, LensExt, Model, Res};
     pub use super::tree::{Tree, TreeExt};
     pub use super::view::{Canvas, View};

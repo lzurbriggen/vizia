@@ -1,242 +1,193 @@
 use crate::prelude::*;
 
-/// Modifiers which alter the layout of a view.
-pub trait LayoutModifiers: Sized {
-    modifier!(
+define_modifiers!(
+    /// Modifiers which alter the layout of a view.
+    trait LayoutModifiers: Sized;
+
+    basic {
         /// Sets the layout type of the view.
-        layout_type,
-        LayoutType
-    );
+        layout_type: LayoutType,
 
-    modifier!(
         /// Sets the position type of the view.
-        position_type,
-        PositionType
-    );
+        position_type: PositionType,
 
-    modifier!(
         /// Sets the spacing applied to the left of the view.
-        left,
-        Units
-    );
+        left: Units,
 
-    modifier!(
+
         /// Sets the spacing applied to the right of the view.
-        right,
-        Units
-    );
+        right: Units,
 
-    modifier!(
+
         /// Sets the spacing applied above the view.
-        top,
-        Units
-    );
+        top: Units,
 
-    modifier!(
+
         /// Sets the spacing applied below the view.
-        bottom,
-        Units
-    );
+        bottom: Units,
+    };
 
-    /// Sets the space applied to all sides of the view.
-    fn space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self;
+    custom {
+        /// Sets the space applied to all sides of the view.
+        fn space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
+                cx.style().left.insert(entity, v.into());
+                cx.style().right.insert(entity, v.into());
+                cx.style().top.insert(entity, v.into());
+                cx.style().bottom.insert(entity, v.into());
 
-    modifier!(
+                cx.need_relayout();
+                cx.need_redraw();
+            });
+
+            self
+        }
+    };
+
+    basic {
         /// Sets the width of the view.
-        width,
-        Units
-    );
+        width: Units,
 
-    modifier!(
         /// Sets the height of the view.
-        height,
-        Units
-    );
+        height: Units,
+    };
 
-    /// Sets the width and height of the view.
-    fn size<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self;
+    custom {
+        /// Sets the width and height of the view.
+        fn size<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, v|{
+                cx.style().width.insert(entity, v.into());
+                cx.style().height.insert(entity, v.into());
 
-    modifier!(
+                cx.need_relayout();
+                cx.need_redraw();
+            });
+
+            self
+        }
+
+        fn min_size<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, v|{
+                cx.style().min_width.insert(entity, v.into());
+                cx.style().min_height.insert(entity, v.into());
+        
+                cx.need_relayout();
+                cx.need_redraw();
+            });
+    
+            self
+        }
+    
+        fn max_size(self, value: Units) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, v|{
+                cx.style().max_width.insert(entity, v);
+                cx.style().max_height.insert(entity, v);
+        
+                cx.need_relayout();
+                cx.need_redraw();
+            });
+    
+            self
+        }
+    };
+
+    basic {
         /// Sets the spacing applied to the left of the children of the view.
-        child_left,
-        Units
-    );
+        child_left: Units,
 
-    modifier!(
+
         /// Sets the spacing applied to the right of the children of the view.
-        child_right,
-        Units
-    );
+        child_right: Units,
 
-    modifier!(
+
         /// Sets the spacing applied above the children of the view.
-        child_top,
-        Units
-    );
+        child_top: Units,
 
-    modifier!(
+
         /// Sets the spacing applied below the children of the view.
-        child_bottom,
-        Units
-    );
+        child_bottom: Units,
+    };
 
-    /// Sets the space applied around the children of the view.
-    fn child_space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self;
+    custom {
+        /// Sets the space applied around the children of the view.
+        fn child_space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
+                cx.style().child_left.insert(entity, v.into());
+                cx.style().child_right.insert(entity, v.into());
+                cx.style().child_top.insert(entity, v.into());
+                cx.style().child_bottom.insert(entity, v.into());
 
-    modifier!(
+                cx.need_relayout();
+                cx.need_redraw();
+            });
+
+            self
+        }
+    };
+
+    basic {
         /// Sets the spacing applied horizontally between the children of the view.
-        col_between,
-        Units
-    );
+        col_between: Units,
 
-    modifier!(
         /// Sets the spacing applied vertically between the children of the view.
-        row_between,
-        Units
-    );
+        row_between: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the space to the left of the view.
-        min_left,
-        Units
-    );
+        min_left: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the space to the left of the view.
-        max_left,
-        Units
-    );
+        max_left: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the space to the right of the view.
-        min_right,
-        Units
-    );
+        min_right: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the space to the right of the view.
-        max_right,
-        Units
-    );
+        max_right: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the space above the view.
-        min_top,
-        Units
-    );
+        min_top: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the space above the view.
-        max_top,
-        Units
-    );
+        max_top: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the space below the view.
-        min_bottom,
-        Units
-    );
+        min_bottom: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the space below the view.
-        max_bottom,
-        Units
-    );
+        max_bottom: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the width of the view.
-        min_width,
-        Units
-    );
+        min_width: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the width of the view.
-        max_width,
-        Units
-    );
+        max_width: Units,
 
-    modifier!(
         /// Sets the minimum constraint on the height of the view.
-        min_height,
-        Units
-    );
+        min_height: Units,
 
-    modifier!(
         /// Sets the maximum constraint on the height of the view.
-        max_height,
-        Units
-    );
-}
+        max_height: Units,
+    };
 
-#[doc(hidden)]
-impl<V: View> LayoutModifiers for Handle<'_, V> {
-    modifier_impl!(left, Units);
-    modifier_impl!(right, Units);
-    modifier_impl!(top, Units);
-    modifier_impl!(bottom, Units);
+    custom {
+        fn grid_rows(self, rows: Vec<Units>) -> Self {
+            self.cx.style().grid_rows.insert(self.entity, rows);
+    
+            self
+        }
+    
+        fn grid_cols(self, cols: Vec<Units>) -> Self {
+            self.cx.style().grid_cols.insert(self.entity, cols);
+    
+            self
+        }
+    };
 
-    fn space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
-            cx.style().left.insert(entity, v.into());
-            cx.style().right.insert(entity, v.into());
-            cx.style().top.insert(entity, v.into());
-            cx.style().bottom.insert(entity, v.into());
+    basic {
+        row_index: usize,
+        row_span: usize,
+        col_index: usize,
+        col_span: usize,
+    };
 
-            cx.need_relayout();
-            cx.need_redraw();
-        });
-
-        self
-    }
-
-    modifier_impl!(width, Units);
-    modifier_impl!(height, Units);
-
-    fn size<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
-            cx.style().width.insert(entity, v.into());
-            cx.style().height.insert(entity, v.into());
-
-            cx.need_relayout();
-            cx.need_redraw();
-        });
-
-        self
-    }
-
-    modifier_impl!(child_left, Units);
-    modifier_impl!(child_right, Units);
-    modifier_impl!(child_top, Units);
-    modifier_impl!(child_bottom, Units);
-
-    fn child_space<U: Copy + Into<Units>>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, v| {
-            cx.style().child_left.insert(entity, v.into());
-            cx.style().child_right.insert(entity, v.into());
-            cx.style().child_top.insert(entity, v.into());
-            cx.style().child_bottom.insert(entity, v.into());
-
-            cx.need_relayout();
-            cx.need_redraw();
-        });
-
-        self
-    }
-
-    modifier_impl!(col_between, Units);
-    modifier_impl!(row_between, Units);
-
-    modifier_impl!(min_left, Units);
-    modifier_impl!(max_left, Units);
-    modifier_impl!(min_right, Units);
-    modifier_impl!(max_right, Units);
-    modifier_impl!(min_top, Units);
-    modifier_impl!(max_top, Units);
-    modifier_impl!(min_bottom, Units);
-    modifier_impl!(max_bottom, Units);
-
-    modifier_impl!(min_width, Units);
-    modifier_impl!(max_width, Units);
-    modifier_impl!(min_height, Units);
-    modifier_impl!(max_height, Units);
-}
+);

@@ -21,7 +21,7 @@ fn main() {
                     .child_space(Stretch(1.0))
                     .col_between(Pixels(2.0))
                 },
-            );
+            ).overflow(Overflow::Hidden);
         })
         .size(Auto)
         .space(Stretch(1.0))
