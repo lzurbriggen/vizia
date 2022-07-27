@@ -1,7 +1,29 @@
-use crate::prelude::*;
+use crate::{prelude::*, text::Selection};
 
 define_modifiers!(
     trait TextModifiers: Sized;
+
+    custom {
+        fn text<U: ToString>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
+                if let Some(prev_data) = cx.style().text.get(entity) {
+                    if prev_data != &val.to_string() {
+                        cx.style().text.insert(entity, val.to_string());
+    
+                        cx.need_relayout();
+                        cx.need_redraw();
+                    }
+                } else {
+                    cx.style().text.insert(entity, val.to_string());
+    
+                    cx.need_relayout();
+                    cx.need_redraw();
+                }
+            });
+    
+            self
+        }
+    };
 
     basic {
         /// Sets the font used by the view.
@@ -64,5 +86,12 @@ define_modifiers!(
 
             self
         }
+    };
+
+    basic {
+        text_selection: Selection,
+        caret_color: Color,
+        selection_color: Color,
+        text_wrap: bool,
     };
 );

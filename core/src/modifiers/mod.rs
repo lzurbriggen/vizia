@@ -17,7 +17,16 @@ macro_rules! define_modifiers {
                 custom {
                     $(
                         $(#[$custom_function_meta:meta])*
-                        fn $custom_function_name:ident$(<$generic_name:tt: Copy +  $generic_bound:tt<$generic_inner:tt>>)? (
+                        fn $custom_function_name:ident
+
+                            $(<
+                                $generic_name:tt: $generic_bound_basic:tt
+                                $(
+                                    + $generic_bound_advanced:tt<$generic_inner_advanced:tt>>
+                                )?
+                            $(>)?)?
+
+                            (
                             $custom_function_self_ident:ident
                             $(, $custom_function_arg_name:ident: $custom_function_arg_type:ty)* $(,)?
                         ) $( -> $custom_function_return_type:ty )?
@@ -41,9 +50,9 @@ macro_rules! define_modifiers {
                 $(
                     $(
                         $(#[$custom_function_meta])*
-                        fn $custom_function_name$(<$generic_name: Copy + $generic_bound<$generic_inner>>)? (
+                        fn $custom_function_name$(<$generic_name: $generic_bound_basic $(+ $generic_bound_advanced<$generic_inner_advanced>)?>)? (
                             $custom_function_self_ident,
-                            $($custom_function_arg_name : $custom_function_arg_type),*
+                            $($custom_function_arg_name: $custom_function_arg_type),*
                         ) $( -> $custom_function_return_type)?;
                     )+
                 )?
@@ -70,7 +79,7 @@ macro_rules! define_modifiers {
                 )?
                 $(
                     $(
-                        fn $custom_function_name$(<$generic_name: Copy + $generic_bound<$generic_inner>>)? (
+                        fn $custom_function_name$(<$generic_name: $generic_bound_basic $(+ $generic_bound_advanced<$generic_inner_advanced>)?>)? (
                             $custom_function_self_ident,
                             $($custom_function_arg_name : $custom_function_arg_type),*
                         ) $( -> $custom_function_return_type)? {

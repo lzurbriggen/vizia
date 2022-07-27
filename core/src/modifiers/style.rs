@@ -125,6 +125,27 @@ define_modifiers!(
         }
     };
 
+    custom {
+        fn image<U: ToString>(self, value: impl Res<U>) -> Self {
+            value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
+                let val = val.to_string();
+                if let Some(prev_data) = cx.style().image.get(entity) {
+                    if prev_data != &val {
+                        cx.style().image.insert(entity, val);
+    
+                        cx.need_redraw();
+                    }
+                } else {
+                    cx.style().image.insert(entity, val);
+    
+                    cx.need_redraw();
+                }
+            });
+    
+            self
+        }
+    };
+
     basic {
 
         /// Sets the z-order of the view.
@@ -135,5 +156,9 @@ define_modifiers!(
 
         /// 
         cursor: CursorIcon,
+
+        rotate: f32,
+        translate: (f32, f32),
+        scale: (f32, f32),
     };
 );

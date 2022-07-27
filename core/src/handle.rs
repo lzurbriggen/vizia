@@ -114,45 +114,6 @@ impl<'a, V: View> Handle<'a, V> {
         self
     }
 
-    pub fn text<U: ToString>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
-            if let Some(prev_data) = cx.style().text.get(entity) {
-                if prev_data != &val.to_string() {
-                    cx.style().text.insert(entity, val.to_string());
-
-                    cx.need_relayout();
-                    cx.need_redraw();
-                }
-            } else {
-                cx.style().text.insert(entity, val.to_string());
-
-                cx.need_relayout();
-                cx.need_redraw();
-            }
-        });
-
-        self
-    }
-
-    pub fn image<U: ToString>(self, value: impl Res<U>) -> Self {
-        value.set_or_bind(self.cx, self.entity, |cx, entity, val| {
-            let val = val.to_string();
-            if let Some(prev_data) = cx.style().image.get(entity) {
-                if prev_data != &val {
-                    cx.style().image.insert(entity, val);
-
-                    cx.need_redraw();
-                }
-            } else {
-                cx.style().image.insert(entity, val);
-
-                cx.need_redraw();
-            }
-        });
-
-        self
-    }
-
     // Abilities
     pub fn hoverable(self, state: bool) -> Self {
         if let Some(abilities) = self.cx.style().abilities.get_mut(self.entity) {
@@ -173,15 +134,4 @@ impl<'a, V: View> Handle<'a, V> {
 
         self
     }
-
-    set_style!(text_selection, Selection);
-    set_style!(caret_color, Color);
-    set_style!(selection_color, Color);
-    set_style!(text_wrap, bool);
-
-    set_style!(rotate, f32);
-    set_style!(translate, (f32, f32));
-    set_style!(scale, (f32, f32));
-
-
 }
