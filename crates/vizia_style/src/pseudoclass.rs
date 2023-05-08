@@ -56,7 +56,7 @@ impl ToCss for PseudoClass {
             PseudoClass::Indeterminate => todo!(),
             PseudoClass::Blank => todo!(),
             PseudoClass::Valid => todo!(),
-            PseudoClass::Invalid => todo!(),
+            PseudoClass::Invalid => dest.write_str(":invalid"),
             PseudoClass::InRange => todo!(),
             PseudoClass::OutOfRange => todo!(),
             PseudoClass::Required => todo!(),
